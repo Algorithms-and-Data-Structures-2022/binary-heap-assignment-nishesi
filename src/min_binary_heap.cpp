@@ -24,7 +24,6 @@ namespace assignment {
   }
 
   MinBinaryHeap::~MinBinaryHeap() {
-
     // обнуляем поля
     size_ = 0;
     capacity_ = 0;
@@ -46,7 +45,11 @@ namespace assignment {
     // 2. Увеличьте размер двоичной кучи.
     // 3. Вызовите операцию sift_up над индексом вставленного элемента.
 
-    return false;
+    data_[size_].key = key;
+    data_[size_].value = value;
+    size_++;
+    sift_up(size_-1);
+    return true;
   }
 
   std::optional<int> MinBinaryHeap::Extract() {
@@ -61,6 +64,12 @@ namespace assignment {
     // 2. В корень поместите последний элемент (правый нижний в куче).
     // 3. Уменьшите размер двоичной кучи.
     // 4. Вызовите функцию "спуска" узлов heapify над индексом корня.
+    int toReturnValue = data_[0].value;
+    data_[0].key = data_[size_-1].key;
+    data_[0].value = data_[size_-1].value;
+    size_--;
+    heapify(0);
+    return toReturnValue;
 
     return std::nullopt;
   }
@@ -75,16 +84,29 @@ namespace assignment {
     // 3. Вызовите над индексом удаляемого элемента функцию sift_up.
     // 4. Извлеките корневой (удаляемый) узел из кучи операцией Extract.
 
+    auto index = search_index(key);
+    if (!index.has_value()) {
+      return false;
+    }
+
+    data_[index.value()].key = min_key_value;
+    sift_up(index.value());
+    Extract();
     return true;
   }
 
   void MinBinaryHeap::Clear() {
     // Write your code here ...
+      size_ = 0;
   }
 
   std::optional<int> MinBinaryHeap::Search(int key) const {
     // Write your code here ...
-    return std::nullopt;
+    auto index = search_index(key);
+    if (!index.has_value()) {
+      return std::nullopt;
+    }
+    return data_[index.value()].value;
   }
 
   bool MinBinaryHeap::Contains(int key) const {
@@ -154,6 +176,11 @@ namespace assignment {
 
   std::optional<int> MinBinaryHeap::search_index(int key) const {
     // Write your code here ...
+    for (int i = 0; i < size_; i++) {
+      if (data_[i].key == key) {
+        return i;
+      }
+    }
     return std::nullopt;
   }
 
